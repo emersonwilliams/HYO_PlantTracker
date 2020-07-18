@@ -77,10 +77,10 @@ WSGI_APPLICATION = 'capstone_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'hyocapstonedb',
-        'USER': 'teamregormember',
-        'PASSWORD': '2020testdb981',
-        'HOST': 'db4free.net',
+        'NAME': 'heroku_602d90671a263f9',
+        'USER': 'b3bc5eb9b94bbf',
+        'PASSWORD': 'e3794c3a',
+        'HOST': 'us-cdbr-east-02.cleardb.com',
         'PORT': '3306',
     }
 }
