@@ -8,6 +8,12 @@ import datetime
 def home(request):
     return render(request, 'home.html', {})
 
+def login(request):
+    return render(request, 'login.html', {})
+    
+def register(request):
+    return render(request, 'register.html', {})
+
 def myplants(request):
     return render(request, 'myplants.html', {})
 
