@@ -7,9 +7,4 @@ class User(models.Model):
     passwd = models.CharField(max_length=30)
 
     def __str__(self):
-        return (self.user_name, self.passwd)
-
-
-class collections(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-
+        return str(self.user_name) + str(self.passwd)
