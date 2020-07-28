@@ -1,16 +1,11 @@
 from django.shortcuts import render
-from . import test_login_method
 # ...
 from django.http import HttpResponse
+from django.contrib.auth import authenticate, login
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from . import models
 
-user_dict = {}
-for obj in models.User.objects.all():
-    user_dict[obj.user_name] = obj.passwd
-
-# Create your views here.
 @csrf_exempt
 def home(request):
     return render(request, 'home.html', {})
@@ -18,15 +13,19 @@ def home(request):
 @csrf_exempt
 def login(request):
     if request.method == "POST":
-        name = request.POST.get("username")
-        password = request.POST.get("password")
-        try:
-            if user_dict[name] == password: return render(request, "myplants.html")
-            else: raise KeyError
-        except:
-            return render(request, "login.html")
+        #Authenticate is a Django implemented function. It takes credentials as keyword args, and checks for them in the auth_user table. If it verifies
+        #the credentials, then it returns a user object, but returns false otherwise.
+        user = authenticate(username=request.POST.get("username"), password = request.POST.get("password"))
+        if user is not None:
+            #Login is an additional function pre-implemented in Django. The function will store the user objects ID in a session, and I'm hoping it binds a
+            #digital signature to the request object for stronger security but I think it just uses a cookie via a sessions table
+            login(request, user)
+            return render(request, "myplants.html")
+        else:
+            message = "Login attempt failed. Please try again or register to create an account."
+            return render(request, "login.html", {"error_message": message})
 
-    return render(request, 'login.html', {})
+    return render(request, 'login.html')
 
 @csrf_exempt
 def register(request):
