@@ -23,9 +23,9 @@ def login(request):
             return render(request, "myplants.html")
         else:
             message = "Login attempt failed. Please try again or register to create an account."
-            return render(request, "login.html", {"error_message": message})
+            return render(request, "test_login.html", {"error_message": message})
 
-    return render(request, 'login.html')
+    return render(request, 'test_login.html')
 
 @csrf_exempt
 def register(request):
