@@ -1,0 +1,10 @@
+.nav-item {
+    padding-left:3.8em;
+    padding-right:3.8em;
+  }
+
+  div{
+    fill: blue;
+    color:'black';
+    background-color: bisque;
+  }

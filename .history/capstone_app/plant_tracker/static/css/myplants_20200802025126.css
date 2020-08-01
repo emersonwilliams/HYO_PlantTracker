@@ -1,0 +1,40 @@
+.navbar{
+    padding: 0.5em 0.8em 0.8em 0.8em;
+    
+}
+.op1{
+    /* padding: 2em 2em 2em 2em; */
+    margin: 0.3em ;
+    
+}
+/* .container{
+    margin-left: 7%;
+    /* margin-right: %; */
+} */
+.container{
+
+    /* margin-right: 30%; */
+    /* padding-left: 0.3em;
+    padding-right: 0.3em; */
+background-color: hotpink;
+}
+
+d-flex{
+    background-color: hotpink;
+}
+
+.k1{
+    background-color: burlywood;
+} 
+
+.p2{
+    /* margin:10%; */
+}
+.img1{
+    padding-left:1em;
+    padding-right:1em ;
+    padding-bottom: 0.5em;
+    padding-top:0.5em;
+    width: 15%;
+    height: 15%;
+}
