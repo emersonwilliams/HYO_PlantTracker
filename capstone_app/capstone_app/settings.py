@@ -78,14 +78,15 @@ WSGI_APPLICATION = 'capstone_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'heroku_602d90671a263f9',
-        'USER': 'b3bc5eb9b94bbf',
-        'PASSWORD': 'e3794c3a',
+        'NAME': 'heroku_c0e322f860abbaa',
+        'USER': 'bbc2d3fee218a5',
+        'PASSWORD': '081181c8',
         'HOST': 'us-cdbr-east-02.cleardb.com',
         'PORT': '3306',
     }
 }
 
+AUTH_USER_MODEL = "plant_tracker.CustomUser"
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
