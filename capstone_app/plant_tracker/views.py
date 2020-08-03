@@ -30,9 +30,9 @@ def login(request):
 
         else:
             message = "Login attempt failed. Please try again or register to create an account."
-            return render(request, "test_login.html", {"error_message": message})
+            return render(request, "login.html", {"error_message": message})
 
-    return render(request, 'test_login.html')
+    return render(request, 'login.html')
 
 @csrf_exempt
 def register(request):

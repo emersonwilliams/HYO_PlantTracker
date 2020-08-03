@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 
 {% load static %}
 
@@ -18,19 +18,36 @@
 <body style="background-color: lightgreen;">
 
  <div class="title">
+   <h1 style="text-align:center;">Welcome to the Plant Tracker!</h1>
+ </div>
+
+
+ <div class="page">
    <h2 style="text-align:center;">Log In</h2>
  </div>
 
-<br><br>
-<div style="text-align:center;">
-  <form>
-    <label for="email">Email:</label>
-    <input type="text" id="email" name="email">
-    <br><br>
-    <label for="password">Password:</label>
-    <input type="text" id="password" name="password">
-    <input type="submit" value="Sign In">
+    <form action="login" method = "post">
+        <div class="form-group">
+          <div style="text-align: center;">
+    <label for="username">Email:</label>
+    <input type="text" class="textbox" id="username" name="username" aria-describedby="emailHelp">
+  </div>
 </div>
+  <div class="form-group">
+    <div style="text-align: center">
+    <label for="password">Password:</label>
+    <input type="password" class="textbox" id="password" name="password">
+  </div>
+</div>
+  <div style="text-align: center;">
+    <button type="submit" class="btn btn-dark">Sign in</button>
+  </div>
+  
+
+    </form>
+    <div style="text-align: center;">
+    <p><a href="register">Register here!</a></p>
+  </div>
 
 
 
