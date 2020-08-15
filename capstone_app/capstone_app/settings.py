@@ -83,6 +83,7 @@ DATABASES = {
         'PASSWORD': '081181c8',
         'HOST': 'us-cdbr-east-02.cleardb.com',
         'PORT': '3306',
+        #'OPTIONS': {'init_command': 'SET storage_engine=INNODB;'}
     }
 }
 

@@ -7,10 +7,12 @@ from django.views.decorators.csrf import csrf_exempt
 from . import models, forms
 from django.shortcuts import redirect
 from django.contrib.auth.forms import UserCreationForm
+import django.core.exceptions as e
 
 @csrf_exempt
 def home(request):
     return render(request, 'home.html', {})
+
 
 @csrf_exempt
 def login(request):
@@ -18,21 +20,20 @@ def login(request):
 
         #Authenticate is a Django implemented function. It takes credentials as keyword args, and checks for them in the auth_user table. If it verifies
         #the credentials, then it returns a user object, but returns false otherwise.
-
         user = authenticate(username=request.POST.get("username"), password = request.POST.get("password"))
-        if user is not None:
 
+        if user is not None:
             #Login is an additional function pre-implemented in Django. The function will store the user objects ID in a session, and I'm hoping it binds a
             #digital signature to the request object for stronger security but I think it just uses a cookie via a sessions table
-
             auth_login(request, user)
+            id = user.id
             return redirect("myplants")
-
         else:
             message = "Login attempt failed. Please try again or register to create an account."
             return render(request, "test_login.html", {"error_message": message})
 
     return render(request, 'test_login.html')
+
 
 @csrf_exempt
 def register(request):
@@ -40,6 +41,7 @@ def register(request):
 
     if request.method == "POST":
         form = forms.RegistrationForm(request.POST)
+
         if form.is_valid():
             print("Saving user..")
             form.save()
@@ -48,12 +50,51 @@ def register(request):
     context = {"form": form}
     return render(request, 'register.html', context)
 
+
 @csrf_exempt
 def myplants(request):
-    return render(request, 'myplants.html', {})
+    if request.user.is_authenticated:
+        context = {}
 
+        for plant in models.JoinUserPlants.objects.filter(user = request.user):
+            plant_data = models.Plants.objects.get(plant_id = plant.plant_id)
+
+            try:
+                context[plant.plant_id].append(plant_data)
+            except KeyError:
+                context[plant.plant_id] = [plant_data]
+
+        #debugging
+        for k, v in context.items():
+            print(k)
+            print(v)
+
+        return render(request, "myplants.html", context)
+
+    return render(request, 'register.html', {})
+
+@csrf_exempt
 def addplant(request):
-    return render(request, 'addplant.html', {})
+    if request.method == "GET":
+        return render(request, 'addplant.html', {})
+    else:
+        #need to make more flexible... return all results and lets user select via combo box
+        #if no results, then prompt them to add the plant manually, save it to plants table, save to join table
+        plant_name = request.POST.get("common-name")
+        try:
+            plant = models.Plants.objects.get(plant_name__contains = plant_name)
+        except e.ObjectDoesNotExist:
+            return render(request, "addplant.html", {})
+
+        user = request.user
+        nickname = request.POST.get("nickname")
+        watering = request.POST.get("watering")
+
+        join_instance = models.JoinUserPlants(user = user, plant = plant, nickname = nickname, watering_freq = watering)
+        join_instance.save()
+
+        return render(request, 'addplant.html', {})
+        #return redirect("myplants")
 
 def plantdetail(request, plant_id):
     # Need to add stuff to handle actually getting and displaying the detail !
