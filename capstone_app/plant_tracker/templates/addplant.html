@@ -1,1 +1,15 @@
 this is the page where you can add a plant
+
+<form action="{% url 'addplant' %}" method="post">
+
+    <label for="common-name"> Common Name of Plant</label>
+    <input type="text", name="common-name" id="common-name">
+
+    <label for="watering"> Water Frequency in Days</label>
+    <input type="number", name="watering" id="watering">
+
+    <label for="nickname"> Nickname </label>
+    <input type="text", name="nickname" id="nickname">
+
+    <button type="submit"> Add Plant</button>
+</form>
