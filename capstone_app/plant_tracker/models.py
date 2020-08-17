@@ -60,6 +60,10 @@ class CustomUser(AbstractBaseUser):
 
     def get_name(self):
         return self.full_name
+    
+    def get_phone(self):
+        return self.phone
+
     @property
     def length_of_account(self):
         return self.created
