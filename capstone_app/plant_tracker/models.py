@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db.backends.mysql.base import DatabaseWrapper
+from datetime import datetime, timedelta
 # Create your models here.
 """
 08/03/2020
@@ -54,8 +55,15 @@ class CustomUser(AbstractBaseUser):
     def __str__(self):
         return (self.email, self.password)
 
+    def get_id(self):
+        return self.id
+
     def get_name(self):
         return self.full_name
+    
+    def get_phone(self):
+        return self.phone
+
     @property
     def length_of_account(self):
         return self.created
@@ -67,6 +75,51 @@ class CustomUser(AbstractBaseUser):
     @property
     def is_active(self):
         return self.active
+
+class Plants(models.Model):
+    plant_id = models.AutoField(primary_key=True)
+    plant_name = models.CharField(max_length=255)
+    image_url = models.CharField(max_length=255)
+    scientific_name = models.CharField(max_length=512, null=True)
+    origin = models.CharField(max_length=512, null=True)
+    growth_desc = models.CharField(max_length=512, null=True)
+    poisonous_desc = models.CharField(max_length=512, null=True)
+    light_desc = models.CharField(max_length=1000, null=True)
+    watering_desc = models.CharField(max_length=1000, null=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.plant_name) + " " +str(self.date_added)
+
+    #class Meta:
+        #unique_together = ["plant_name", "origin"]
+
+
+class JoinUserPlants(models.Model):
+    combo_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,)
+    plant = models.ForeignKey(Plants, on_delete=models.CASCADE)
+    nickname = models.CharField(max_length=100)
+    watering_freq = models.IntegerField(default=3)
+    last_cared_for = models.DateTimeField(default=datetime.now)
+
+    @property
+    def next_water(self):
+        #this function takes the current data and subtracts the amount of days specified in watering frequency, and then checks to see
+        #if its been too many days since we last cared for the plant
+        if datetime.now - timedelta(days=self.watering_freq) >= self.last_cared_for:
+            #returning True could trigger the SMS system
+            return True
+
+    def get_plant_id(self):
+        return self.plant
+
+    def __str__(self):
+        return (self.user, self.plant, self.nickname)
+
+
+
+
 
 
 
