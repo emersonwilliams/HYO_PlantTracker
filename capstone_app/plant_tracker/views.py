@@ -5,9 +5,12 @@ from django.contrib.auth import authenticate, login as auth_login
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from . import models, forms
+from .tasks import send_sms_reminder
 from django.shortcuts import redirect
 from django.contrib.auth.forms import UserCreationForm
 import django.core.exceptions as e
+from apscheduler.schedulers.background import BackgroundScheduler
+
 
 @csrf_exempt
 def home(request):
@@ -85,7 +88,22 @@ def addplant(request):
         join_instance = models.JoinUserPlants(user = user, plant = plant, nickname = nickname, watering_freq = watering)
         join_instance.save()
 
-        return redirect("myplants")
+        # get user info to schedule SMS reminder
+        username = user.get_name()
+        phonenum = user.get_phone()
+
+        scheduler = BackgroundScheduler()
+        scheduler.add_executor('processpool')
+        scheduler.add_job(send_sms_reminder, 'interval', args=[username, nickname, phonenum], days=int(watering))
+
+        try:
+            scheduler.start()
+            print("Scheduler started")
+            return render(request, 'addplant.html', {})
+        except:
+            # This shouldn't happen because then the user wouldn't get notifications
+            print("Scheduler failed to start")
+            return render(request, 'addplant.html', {})
 
 @csrf_exempt
 def delete(request, plant_id):
