@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login as auth_login
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from . import models, forms
-from .tasks import send_sms_reminder
+from .tasks import send_sms_reminder, ReminderScheduler
 from django.shortcuts import redirect
 from django.contrib.auth.forms import UserCreationForm
 import django.core.exceptions as e
@@ -85,31 +85,29 @@ def addplant(request):
         nickname = request.POST.get("nickname")
         watering = request.POST.get("watering")
 
+        # trying to be able to access scheduler so putting it in join_instance for now ?
         join_instance = models.JoinUserPlants(user = user, plant = plant, nickname = nickname, watering_freq = watering)
         join_instance.save()
 
-        # get user info to schedule SMS reminder
-        username = user.get_name()
-        phonenum = user.get_phone()
+        join_instance.set_sched(ReminderScheduler(user, nickname, watering))
+        join_instance.get_sched().start_scheduler()
 
-        scheduler = BackgroundScheduler()
-        scheduler.add_executor('processpool')
-        scheduler.add_job(send_sms_reminder, 'interval', args=[username, nickname, phonenum], days=int(watering))
-
-        try:
-            scheduler.start()
-            print("Scheduler started")
-            return render(request, 'addplant.html', {})
-        except:
-            # This shouldn't happen because then the user wouldn't get notifications
-            print("Scheduler failed to start")
-            return render(request, 'addplant.html', {})
+        return render(request, 'addplant.html', {})
 
 @csrf_exempt
 def delete(request, plant_id):
     user = request.user
     plant = plant_id
+    
+    #for join_instance in models.JoinUserPlants.objects.filter(user = user).filter(plant = models.Plants.objects.get(plant_id = plant)):
+    #    try:
+    #        join_instance.get_sched().delete_scheduler()
+    #    except:
+    #        print("HM")
+        
+     
     models.JoinUserPlants.objects.filter(user = user).filter(plant = models.Plants.objects.get(plant_id = plant)).delete()
+
     return redirect("myplants")
 
 def plantdetail(request, plant_id):
