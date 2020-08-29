@@ -1,8 +1,16 @@
-this is the page where you can see all of your plants
+<h2>Welcome, {{user.email}}</h2>
 
-{% for key, values in context.items %}
-    <p> {{key}} </p>
-    {% for v in values %}
-        <p> {{v}} </p>
+<h3>Collection: </h3>
+    {% for field in data %}
+        <image src = {{field.image_url}}></image>
+        <p>{{field.scientific_name}}</p>
+        <p>{{field.origin}}</p>
+        <p>{{field.light_desc}}</p>
+        <p>{{field.watering_desc}}</p>
+        <form method="POST" action="{% url 'delete' field.plant_id %}">
+            <button type="submit"> Delete {{field.plant_name}} from collection</button>
+        </form>
     {% endfor %}
-{% endfor %}
+
+<a href="add-plant">Add new plant</a>
+

@@ -9,6 +9,8 @@ urlpatterns = [
     # ex: /register
     path('register', views.register, name='register'),
     # ex: /add-plant
+    path('delete/<int:plant_id>', views.delete, name='delete'),
+
     path('add-plant', views.addplant, name='addplant'),
     # ex: /my-plants
     path('my-plants', views.myplants, name='myplants'),

@@ -57,20 +57,11 @@ def register(request):
 @csrf_exempt
 def myplants(request):
     if request.user.is_authenticated:
-        context = {}
+        context = {"data":[]}
 
         for plant in models.JoinUserPlants.objects.filter(user = request.user):
             plant_data = models.Plants.objects.get(plant_id = plant.plant_id)
-
-            try:
-                context[plant.plant_id].append(plant_data)
-            except KeyError:
-                context[plant.plant_id] = [plant_data]
-
-        #debugging
-        for k, v in context.items():
-            print(k)
-            print(v)
+            context["data"].append(plant_data)
 
         return render(request, "myplants.html", context)
 
@@ -81,15 +72,14 @@ def addplant(request):
     if request.method == "GET":
         return render(request, 'addplant.html', {})
     else:
-        #need to make more flexible... return all results and lets user select via combo box
-        #if no results, then prompt them to add the plant manually, save it to plants table, save to join table
+        #TODO: need to make more flexible... return all results and lets user select via combo box and if no results, then prompt them to add the plant manually, save it to plants table, save to join table
         plant_name = request.POST.get("common-name")
         try:
+            #TODO: handle multiple responses from query via letting users select from a combo box. Much of this view may change...
             plant = models.Plants.objects.get(plant_name__contains = plant_name)
         except e.ObjectDoesNotExist:
-            # Should probably notify the user somehow that the common name was not found
-            print("Print placeholder: Common name not found")
-            return render(request, "addplant.html", {})
+            context={"message": "Sorry. Plant not found in database."}
+            return render(request, "plantnotfound.html", context)
 
         user = request.user
         nickname = request.POST.get("nickname")
@@ -115,7 +105,12 @@ def addplant(request):
             print("Scheduler failed to start")
             return render(request, 'addplant.html', {})
 
-        #return redirect("myplants")
+@csrf_exempt
+def delete(request, plant_id):
+    user = request.user
+    plant = plant_id
+    models.JoinUserPlants.objects.filter(user = user).filter(plant = models.Plants.objects.get(plant_id = plant)).delete()
+    return redirect("myplants")
 
 def plantdetail(request, plant_id):
     # Need to add stuff to handle actually getting and displaying the detail !

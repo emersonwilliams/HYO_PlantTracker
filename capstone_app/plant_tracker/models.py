@@ -89,7 +89,8 @@ class Plants(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.plant_name) + " " +str(self.date_added)
+        return str(self.plant_name) + " " +str(self.date_added) + "\n" + \
+               "Available Fields: plant_id, plant_name, image_url, scientific_name, origin, growth_desc, poisonous_desc, light_desc, watering_desc, date_added"
 
     #class Meta:
         #unique_together = ["plant_name", "origin"]
