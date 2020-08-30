@@ -98,6 +98,7 @@ def addplant(request):
         join_instance = models.JoinUserPlants(user = user, plant = plant, nickname = nickname, watering_freq = watering)
         join_instance.save()
 
+
         # get user info to schedule SMS reminder
         username = user.get_name()
         phonenum = user.get_phone()
