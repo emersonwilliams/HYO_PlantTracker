@@ -47,6 +47,8 @@ class CustomUser(AbstractBaseUser):
     phone = models.CharField(max_length=12, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
 
+    sched = None
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ["phone", "full_name", "password"]
 
@@ -89,7 +91,8 @@ class Plants(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.plant_name) + " " +str(self.date_added)
+        return str(self.plant_name) + " " +str(self.date_added) + "\n" + \
+               "Available Fields: plant_id, plant_name, image_url, scientific_name, origin, growth_desc, poisonous_desc, light_desc, watering_desc, date_added"
 
     #class Meta:
         #unique_together = ["plant_name", "origin"]
@@ -102,6 +105,8 @@ class JoinUserPlants(models.Model):
     nickname = models.CharField(max_length=100)
     watering_freq = models.IntegerField(default=3)
     last_cared_for = models.DateTimeField(default=datetime.now)
+    
+    sched = None
 
     @property
     def next_water(self):
@@ -114,8 +119,16 @@ class JoinUserPlants(models.Model):
     def get_plant_id(self):
         return self.plant
 
+    def set_sched(self, scheduler):
+        #print("set sched")
+        self.sched = scheduler
+    
+    def get_sched(self):
+        return self.sched
+
     def __str__(self):
-        return (self.user, self.plant, self.nickname)
+        return self.nickname
+        #return (self.user, self.plant, self.nickname)
 
 
 

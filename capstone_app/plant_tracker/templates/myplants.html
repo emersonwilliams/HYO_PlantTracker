@@ -31,25 +31,24 @@
   <div class ="container-fluid">
     <div class="container">
     <div class="d-flex flex-xl-column bd-highlight mb-3 jj">
-        <!-- <div class="d-flex">
-            <div class="p-2 bg-info flex-fill">Flex item 1</div>
-            <div class="p-2 bg-warning flex-fill">Flex item 2</div>
-            <div class="p-2 bg-primary flex-fill">Flex item 3</div>
-        </div>
-        <div class="d-flex">
-            <div class="p-2 bg-warning flex-fill">Flex item 2</div>
-            <div class="p-2 bg-primary flex-fill">Flex item 3</div>
-            <img src="..." class="img-fluid" alt="Responsive image">
-        </div> -->
-        {% for key, values in context.items %}
-            <p> {{key}} </p>
-            {% for v in values %}
-                <p> {{v}} </p>
+
+        <h2>Welcome, {{user.email}}</h2>
+
+            <h3>Collection: </h3>
+            {% for field in data %}
+                <image src = {{field.image_url}}></image>
+                <p>{{field.scientific_name}}</p>
+                <p>{{field.origin}}</p>
+                <p>{{field.light_desc}}</p>
+                <p>{{field.watering_desc}}</p>
+                <form method="POST" action="{% url 'delete' field.plant_id %}">
+                    <button type="submit"> Delete {{field.plant_name}} from collection</button>
+                </form>
             {% endfor %}
-        {% endfor %}
 
     </div>
 </div>
 </body>
 
 </html>
+

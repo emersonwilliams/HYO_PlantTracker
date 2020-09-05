@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login as auth_login
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from . import models, forms
-from .tasks import send_sms_reminder
+from .tasks import send_sms_reminder, ReminderScheduler
 from django.shortcuts import redirect
 from django.contrib.auth.forms import UserCreationForm
 import django.core.exceptions as e
@@ -57,20 +57,11 @@ def register(request):
 @csrf_exempt
 def myplants(request):
     if request.user.is_authenticated:
-        context = {}
+        context = {"data":[]}
 
         for plant in models.JoinUserPlants.objects.filter(user = request.user):
             plant_data = models.Plants.objects.get(plant_id = plant.plant_id)
-
-            try:
-                context[plant.plant_id].append(plant_data)
-            except KeyError:
-                context[plant.plant_id] = [plant_data]
-
-        #debugging
-        for k, v in context.items():
-            print(k)
-            print(v)
+            context["data"].append(plant_data)
 
         return render(request, "myplants.html", context)
 
@@ -81,20 +72,20 @@ def addplant(request):
     if request.method == "GET":
         return render(request, 'addplant.html', {})
     else:
-        #need to make more flexible... return all results and lets user select via combo box
-        #if no results, then prompt them to add the plant manually, save it to plants table, save to join table
+        #TODO: need to make more flexible... return all results and lets user select via combo box and if no results, then prompt them to add the plant manually, save it to plants table, save to join table
         plant_name = request.POST.get("common-name")
         try:
+            #TODO: handle multiple responses from query via letting users select from a combo box. Much of this view may change...
             plant = models.Plants.objects.get(plant_name__contains = plant_name)
         except e.ObjectDoesNotExist:
-            # Should probably notify the user somehow that the common name was not found
-            print("Print placeholder: Common name not found")
-            return render(request, "addplant.html", {})
+            context={"message": "Sorry. Plant not found in database."}
+            return render(request, "plantnotfound.html", context)
 
         user = request.user
         nickname = request.POST.get("nickname")
         watering = request.POST.get("watering")
 
+        # trying to be able to access scheduler so putting it in join_instance for now ?
         join_instance = models.JoinUserPlants(user = user, plant = plant, nickname = nickname, watering_freq = watering)
         join_instance.save()
 
@@ -102,21 +93,26 @@ def addplant(request):
         # get user info to schedule SMS reminder
         username = user.get_name()
         phonenum = user.get_phone()
+        join_instance.set_sched(ReminderScheduler(user, nickname, watering))
+        join_instance.get_sched().start_scheduler()
 
-        scheduler = BackgroundScheduler()
-        scheduler.add_executor('processpool')
-        scheduler.add_job(send_sms_reminder, 'interval', args=[username, nickname, phonenum], days=int(watering))
+        return render(request, 'addplant.html', {})
 
-        try:
-            scheduler.start()
-            print("Scheduler started")
-            return render(request, 'addplant.html', {})
-        except:
-            # This shouldn't happen because then the user wouldn't get notifications
-            print("Scheduler failed to start")
-            return render(request, 'addplant.html', {})
+@csrf_exempt
+def delete(request, plant_id):
+    user = request.user
+    plant = plant_id
+    
+    #for join_instance in models.JoinUserPlants.objects.filter(user = user).filter(plant = models.Plants.objects.get(plant_id = plant)):
+    #    try:
+    #        join_instance.get_sched().delete_scheduler()
+    #    except:
+    #        print("HM")
+        
+     
+    models.JoinUserPlants.objects.filter(user = user).filter(plant = models.Plants.objects.get(plant_id = plant)).delete()
 
-        #return redirect("myplants")
+    return redirect("myplants")
 
 def plantdetail(request, plant_id):
     # Need to add stuff to handle actually getting and displaying the detail !
